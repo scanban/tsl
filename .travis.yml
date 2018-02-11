@@ -22,7 +22,7 @@ matrix:
       addons:
         apt:
           sources: *all_sources
-          packages: ['valgrind', 'lcov', 'clang-3.5']
+          packages: ['clang-3.5']
       env: COMPILER='clang++-3.5' BUILD_TYPE='Debug'
 
       # gcc build(s)
@@ -36,10 +36,6 @@ matrix:
       env: COMPILER='g++-4.9' BUILD_TYPE='Debug'
 
 install:
-  # Set the ${CXX} variable properly
-  - export CXX=${COMPILER}
-  - ${CXX} --version
-
   # Install proper CMAKE version
   - CMAKE_VERSION=3.9.6
   - |
@@ -53,6 +49,10 @@ install:
   - cmake --version
 
 before_script:
+  # Set the ${CXX} variable properly
+  - export CXX=${COMPILER}
+  - ${CXX} --version
+
   # have CMake to generate build files
   - cd "${TRAVIS_BUILD_DIR}"
   - mkdir build && cd build
