@@ -2,7 +2,7 @@
 
 ## What is tsl ?
 
-tsl is a tiny, headers-only stream library for C++14 
+tsl is a tiny, headers-only streams library for C++14 
 
 Main goals is simplicity.
 
