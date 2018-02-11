@@ -17,11 +17,11 @@ namespace tsl {
          *  flush detection
          */
         template<typename T>
-        constexpr auto test_flush(int)
+        auto test_flush(int)
         -> sfinae_true<decltype(std::declval<T>().flush())>;
 
         template<typename>
-        constexpr auto test_flush(...) -> std::false_type;
+        auto test_flush(...) -> std::false_type;
 
         template<typename T> struct has_flush : decltype(test_flush<T>(0)) {};
         template<typename T> constexpr const bool has_flush_t = has_flush<T>::value;
@@ -125,11 +125,11 @@ namespace tsl {
             explicit sink(Function f, FlushFunction flush) : _f(std::move(f)), _flush(std::move(flush)) {}
 
             template<typename I, typename ... Processors>
-            void operator()(I&& input, Processors&& ... processors) const {
+            void operator()(I&& input, Processors&& ...) const {
                 _f(std::forward<I>(input));
             }
 
-            template<typename ... Processors> void flush(Processors&& ... processors) {
+            template<typename ... Processors> void flush(Processors&& ...) {
                 _flush();
             }
 
