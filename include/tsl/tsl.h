@@ -17,11 +17,11 @@ namespace tsl {
          *  flush detection
          */
         template<typename T>
-        constexpr static auto test_flush(int)
+        constexpr auto test_flush(int)
         -> sfinae_true<decltype(std::declval<T>().flush())>;
 
         template<typename>
-        constexpr static auto test_flush(...) -> std::false_type;
+        constexpr auto test_flush(...) -> std::false_type;
 
         template<typename T> struct has_flush : decltype(test_flush<T>(0)) {};
         template<typename T> constexpr const bool has_flush_t = has_flush<T>::value;
@@ -36,7 +36,7 @@ namespace tsl {
         Processor last(Processor&& processor) { return std::move(processor); }
 
         template<typename Processor, typename ... Processors>
-        decltype(auto) last(Processor&& processor, Processors&& ... processors) {
+        decltype(auto) last(Processor&&, Processors&& ... processors) {
             return last(std::forward<Processors>(processors)...);
         };
 
@@ -55,7 +55,7 @@ namespace tsl {
 
         template<typename Processor, typename ... Processors>
         std::enable_if_t<!has_flush_t<Processor>>
-        flush(Processor&& processor, Processors&& ... processors) {
+        flush(Processor&&, Processors&& ... processors) {
             flush(std::forward<Processors>(processors)...);
         };
 
@@ -76,7 +76,7 @@ namespace tsl {
         public:
             explicit sort(Compare compare = Compare{}) : _compare { std::move(compare) } {}
 
-            template<typename U, typename ... Processors> void operator()(U&& t, Processors&& ... processors) {
+            template<typename U, typename ... Processors> void operator()(U&& t, Processors&& ...) {
                 _values.push_back(std::forward<U>(t));
             }
 
