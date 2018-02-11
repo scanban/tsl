@@ -1,0 +1,64 @@
+language: cpp
+sudo: false
+
+common_sources: &all_sources
+  - ubuntu-toolchain-r-test
+  - llvm-toolchain-trusty
+  - llvm-toolchain-trusty-3.9
+  - llvm-toolchain-trusty-4.0
+  - llvm-toolchain-trusty-5.0
+
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/deps
+
+matrix:
+  include:
+
+      # clang build(s)
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: *all_sources
+          packages: ['valgrind', 'lcov', 'clang-3.5']
+      env: COMPILER='clang++-3.5' BUILD_TYPE='Debug'
+
+      # gcc build(s)
+
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: *all_sources
+          packages: ['g++-4.9']
+      env: COMPILER='g++-4.9' BUILD_TYPE='Debug'
+
+install:
+  # Set the ${CXX} variable properly
+  - export CXX=${COMPILER}
+  - ${CXX} --version
+
+  # Install proper CMAKE version
+  - CMAKE_VERSION=3.9.6
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      CMAKE_URL="https://cmake.org/files/v${CMAKE_VERSION%.[0-9]}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz"
+      mkdir cmake && travis_retry wget --no-check-certificate -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+    else
+      brew install cmake || brew upgrade cmake
+    fi
+  - cmake --version
+
+before_script:
+  # have CMake to generate build files
+  - cd "${TRAVIS_BUILD_DIR}"
+  - mkdir build && cd build
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+script:
+  # build and run tests
+  - cmake --build . -- -j${JOBS}
+  - ctest --output-on-failure -j${JOBS}
