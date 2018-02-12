@@ -1,5 +1,5 @@
 # tsl
-
+[![Build Status](https://travis-ci.org/scanban/tsl.svg?branch=master)](https://travis-ci.org/scanban/tsl)
 ## What is tsl ?
 
 tsl is a tiny, headers-only streams library for C++14 
