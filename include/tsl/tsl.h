@@ -65,7 +65,7 @@ namespace tsl {
 
             stream_source(Iter begin, Iter end) : _current(begin), _end(end) {}
             bool empty() const { return _current == _end; }
-            value_type next() { return *_current++; }
+            decltype(auto) next() { return *_current++; }
 
         private:
             Iter _current;
@@ -82,8 +82,8 @@ namespace tsl {
 
             template<typename ... Processors> void flush(Processors&& ... processors) {
                 std::sort(_values.begin(), _values.end(), _compare);
-                for (auto i = 0u; i < _values.size(); ++i) {
-                    detail::process(std::move(*(&_values.data()[i])), std::forward<Processors>(processors)...);
+                for (auto&& e : _values) {
+                    detail::process(std::move(e), std::forward<Processors>(processors)...);
                 }
             }
 
@@ -173,6 +173,14 @@ namespace tsl {
     template<typename V, typename ... Unused, template<typename, typename ...> class Container> decltype(auto)
     source(const Container<V, Unused...>& v) {
         return detail::stream_source<typename Container<V, Unused...>::const_iterator>(std::cbegin(v), std::cend(v));
+    };
+
+    template<typename V, typename ... Unused, template<typename, typename ...> class Container> decltype(auto)
+    source(Container<V, Unused...>&& v) {
+        return detail::stream_source<typename std::move_iterator<typename Container<V, Unused...>::iterator>>(
+                std::make_move_iterator(std::begin(v)),
+                std::make_move_iterator(std::end(v))
+        );
     };
 
     /**
